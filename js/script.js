@@ -9,7 +9,7 @@
 
 // var dataset = [] ;
 
-d3.text("data/row.csv", function(datasetText) {
+d3.text("https://raw.githubusercontent.com/5y/RCRF-VIZ/2f357bbd254366b9bbb903a4e1800ef1d2d01c34/data/row.csv", function(datasetText) {
   var dataset = d3.csv.parseRows(datasetText);
 
 
