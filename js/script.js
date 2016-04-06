@@ -1,50 +1,54 @@
-
-// var dataset = [
-// [0.00,    0.34,    0.04,    0.15,    0.40,    0.00,    0.00],
-// [0.00,    0.00,    0.32,    0.22,    0.08,    0.38,    0.65],
-// [0.55,    0.27,    0.29,    0.05,    0.21,    0.27,    0.35],
-// [0.45,    0.05,    0.32,    0.41,    0.00,    0.00,    0.00],
-// [0.00,    0.34,    0.03,    0.17,    0.30,    0.35,    0.00]
-// ];
-
-// var dataset = [] ;
-
-d3.text("https://raw.githubusercontent.com/5y/RCRF-VIZ/2f357bbd254366b9bbb903a4e1800ef1d2d01c34/data/row.csv", function(datasetText) {
-  var dataset = d3.csv.parseRows(datasetText);
-
-
-// d3.csv("data/alldata.csv", function(data){
-//   // dataset = data.map(function(d){return[+d["value1"],+d["value2"]];});
-//   //
-//   dataset = data;
-// });
-
 var K         = 100;
-var x_padding = 250;
-var y_padding = 150;
+var xPadding = 250;
+var yPadding = 150;
 
 var vizSVG = d3.select("#viz")
     .append("svg")
     .attr("width", 2000)
     .attr("height", 1500);
 
+var div = d3.select("body")    
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
+function processLinks(d){
+    var linkStr = "";
+    
+    for (var i=0 in d.links){
+        linkStr = linkStr + "<a href=" + d.links[i].link + ">" + d.links[i].description + "</a>";
+        if (i < d.links.length-1){
+            linkStr = linkStr + "<br/>";
+        }
+    }
+    return linkStr;
+}
 
-vizSVG.selectAll("g")
+var data;
+d3.json("https://gist.githubusercontent.com/adham/399326fa80d6e63510b5fbabcf5239fc/raw/f9c7b36ee70ad776041f5f41ac4eea73bf959265/data.json", function(error, json) {
+    if (error) return console.warn(error);
+    dataset = json;
+
+    vizSVG.selectAll("circle")
     .data(dataset)
-    .enter()
-    .append("g")
-    .selectAll("circle")
-    .data( function(d,i,j) { return d; } )
-    .enter()
-    .append("circle")
+    .enter().append("circle")
     .style("stroke", "4e5d3c")
     .style("stroke-width", 2)
     .style("fill", "9caf84")
-    .attr("r", function(d,i,j) { return K*d; } )
-    .attr("cx", function(d,i,j) { return x_padding*(i+1); })
-    .attr("cy", function(d,i,j) { return y_padding*(j+1); })
-    .on("mouseover", function(){d3.select(this).style("stroke", "black");})
+    .attr("r", function(d) { return K*d.r; } )
+    .attr("cx", function(d) { return xPadding*(d.topic_id); })
+    .attr("cy", function(d) { return yPadding*(d.year); })
+    .on("mouseover", function(d) {
+        div.transition()
+            .duration(500)
+            .style("opacity", 0);
+        div.transition()
+            .duration(200)
+            .style("opacity", 0.9);
+        div.html(processLinks(d))
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px")
+        d3.select(this).style("stroke", "black");})
     .on("mouseout", function(){d3.select(this).style("stroke", "4e5d3c");})
 
-  });
+});
